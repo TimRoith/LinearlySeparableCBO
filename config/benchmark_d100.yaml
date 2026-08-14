@@ -1,0 +1,75 @@
+d: 100
+N: 50
+max_query_budget: 5000000
+n_seeds: 100
+success_thresh: 1.0
+success_ord: inf
+
+problems:
+  - name: rastrigin
+  - name: sphere
+  - name: different_powers
+    label: different_powers_offset0
+    offset: 0
+    qest_kwargs:
+      n_hess: 150
+      r: 20
+      eps_hessian: 1.0e-3
+  - name: different_powers
+    label: different_powers_offset10
+    offset: 1
+    qest_kwargs:
+      n_hess: 150
+      r: 20
+      eps_hessian: 1.0e-3
+  - name: rastrigin_like
+    qest_kwargs:
+      n_hess: 150
+      eps_hessian: 1.0e-3
+  - name: microring
+    qest_kwargs:
+      n_hess: 150
+      eps_hessian: 1.0e-3
+      r: 15
+
+transform:
+  quasi_orth: true
+  perturb: 5.0
+
+scheduler:
+  factor: 1.005
+  name: alpha
+  maximum: 1.0e+5
+
+methods:
+  - cbo_standard
+  - cbo_transformed
+  - rotfun
+  - rotnoise
+  - splitdim
+  - cmaes
+
+cbo_kwargs:
+  dt: 0.03
+  sigma: 7.1
+  alpha: 100.0
+  max_it: 200000
+  f_dim: '3D'
+  noise: anisotropic
+  verbosity: 0
+
+split_cbo_kwargs:
+  dt: 0.01
+  sigma: 1.1
+  alpha: 1.0
+  max_it: 200000
+  f_dim: '3D'
+  noise: anisotropic
+  verbosity: 0
+
+qest_kwargs:
+  n_hess: 100
+  sval_cutoff: 0.001
+  eps_hessian: 1.0e-4
+  restarts: 800
+  n_iter: 200
