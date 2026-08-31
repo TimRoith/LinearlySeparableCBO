@@ -43,7 +43,7 @@ PROBLEM_BUILDERS = {
 # likewise reserved: it's how two entries sharing the same `name` (e.g.
 # different_powers with offset=0 vs offset=1) get distinct result files /
 # table columns instead of colliding.
-RESERVED_PROBLEM_KEYS = {'name', 'label', 'cbo_kwargs', 'qest_kwargs', 'split_cbo_kwargs'}
+RESERVED_PROBLEM_KEYS = {'name', 'label', 'cbo_kwargs', 'qest_kwargs', 'split_cbo_kwargs', 'success_thresh'}
 
 
 def problem_label(problem_cfg):
@@ -122,7 +122,7 @@ def run_one(method, problem_cfg, cfg, seed):
     d = cfg['d']
     budget = cfg['max_query_budget']
     N = cfg['N']
-    thresh = cfg['success_thresh']
+    thresh = problem_cfg.get('success_thresh', cfg['success_thresh'])
     ord_ = cfg.get('success_ord', 'inf')
     ord_ = np.inf if ord_ == 'inf' else ord_
 
@@ -196,12 +196,14 @@ def run_one(method, problem_cfg, cfg, seed):
 
     x_best = np.asarray(x_best).reshape(-1)
     f_best = float(f.f(x_best)) if method == 'cbo_standard' else float(f(x_best))
+    f_min = float(P.f_min)
     dist = P.distance_to_minimum(x_best, mixed=mixed, ord=ord_)
+    gap = f_best - f_min
     return {
         'method': method, 'problem': problem_label(problem_cfg), 'seed': seed,
-        'x_best': x_best.tolist(), 'f_best': f_best, 'f_min': float(P.f_min),
-        'dist': dist, 'success': bool(dist < thresh), 'n_evals': int(n_evals),
-        'q_recovery': q_recovery,
+        'x_best': x_best.tolist(), 'f_best': f_best, 'f_min': f_min,
+        'dist': dist, 'gap': gap, 'success': bool(gap < thresh), 'thresh': thresh,
+        'n_evals': int(n_evals), 'q_recovery': q_recovery,
     }
 
 

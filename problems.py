@@ -51,18 +51,32 @@ class Problem:
     def distance_to_minimum(self, x, mixed=True, ord=np.inf):
         """Success-criterion distance from x to a global minimizer.
 
-        mixed=True  (default): x is in ambient/transformed coordinates,
-                     compared against self.minimum (set by generate_transformed
-                     / generate_rotated; falls back to the untransformed
-                     self.minimum if neither was ever called).
-        mixed=False: x is in the native/untransformed frame, compared against
-                     self.minimum_orig (the pre-transform minimizer).
+        mixed=True  (default): x is in ambient/transformed coordinates.
+                     Mapped back to the native/unmixed frame via the true W
+                     (when available) before comparing against
+                     minimum_orig -- ambient-frame distance alone is
+                     unreliable, since a poorly-conditioned W can amplify a
+                     tiny native-frame error into a large ambient-frame one
+                     (verified: condition number ~247 turned a native error
+                     of norm 0.096 into an ambient-frame L-inf distance of
+                     0.40). Falls back to comparing x directly against
+                     self.minimum if no (square) transform is available.
+        mixed=False: x is already in the native/untransformed frame,
+                     compared directly against minimum_orig (or
+                     self.minimum if no transform was ever applied).
 
         Default implementation assumes a unique minimizer; override for
         problems (e.g. periodic ones) where many x achieve the true optimum.
         """
-        target = self.minimum if mixed else getattr(self, 'minimum_orig', self.minimum)
-        return float(np.linalg.norm(np.asarray(x).reshape(-1) - np.asarray(target), ord=ord))
+        x = np.asarray(x).reshape(-1)
+        W = getattr(self, 'W', None)
+        if mixed and W is not None and W.shape[0] == W.shape[1] == x.shape[0]:
+            y = x @ W.T
+            target = getattr(self, 'minimum_orig', self.minimum)
+        else:
+            y = x
+            target = self.minimum if mixed else getattr(self, 'minimum_orig', self.minimum)
+        return float(np.linalg.norm(y - np.asarray(target), ord=ord))
 
     def post_process(self, dyn, sfac = 10.):
         """Clip particles back into domain after each CBO step (numpy/cbx pipeline)."""

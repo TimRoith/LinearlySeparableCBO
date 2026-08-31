@@ -2,35 +2,16 @@ d: 100
 N: 50
 max_query_budget: 5000000
 n_seeds: 100
-success_thresh: 1.0
+success_thresh: 0.005
 success_ord: inf
 
 problems:
   - name: rastrigin
   - name: sphere
   - name: different_powers
-    label: different_powers_offset0
     offset: 0
-    qest_kwargs:
-      n_hess: 150
-      r: 20
-      eps_hessian: 1.0e-3
-  - name: different_powers
-    label: different_powers_offset10
-    offset: 1
-    qest_kwargs:
-      n_hess: 150
-      r: 20
-      eps_hessian: 1.0e-3
   - name: rastrigin_like
-    qest_kwargs:
-      n_hess: 150
-      eps_hessian: 1.0e-3
-  - name: microring
-    qest_kwargs:
-      n_hess: 150
-      eps_hessian: 1.0e-3
-      r: 15
+
 
 transform:
   quasi_orth: true
@@ -68,8 +49,9 @@ split_cbo_kwargs:
   verbosity: 0
 
 qest_kwargs:
-  n_hess: 100
+  n_hess: 150
   sval_cutoff: 0.001
-  eps_hessian: 1.0e-4
+  eps_hessian: 1.0e-3
   restarts: 800
   n_iter: 200
+  r: 20
