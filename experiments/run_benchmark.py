@@ -137,7 +137,7 @@ def run_one(method, problem_cfg, cfg, seed):
         return multiply(**sched_cfg) if sched_cfg else None
 
     def q_recovery_check(Q):
-        q_true, q_wrong, q_missed = check_unit_weight_estimates(f.Q, Q, just_counts=True, prec=1e-8)
+        q_true, q_wrong, q_missed = check_unit_weight_estimates(f.Q, Q, just_counts=True, prec=1e-8 / (2**0.5))
         return {'true': q_true, 'wrong': q_wrong, 'missed': q_missed}
 
     if method == 'cbo_standard':
